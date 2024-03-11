@@ -50,7 +50,7 @@ class Router
      */
     public static function to(string $path, $endpoint = 'api'): string
     {
-        if (substr($path, 0, 1) !== '/') {
+        if (!empty($path) && substr($path, 0, 1) !== '/') {
             $path = '/' . $path;
         }
         return static::baseUrl($endpoint) . $path;
