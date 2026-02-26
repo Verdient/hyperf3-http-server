@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace Verdient\Hyperf3\HttpServer;
 
 use Hyperf\HttpServer\Server as HttpServerServer;
+use Override;
 
 /**
  * @inheritdoc
+ *
  * @author Verdient。
  */
 class Server extends HttpServerServer
 {
     /**
-     * @inheritdoc
      * @author Verdient。
      */
+    #[Override]
     protected function initRequestAndResponse($request, $response): array
     {
         if (isset($request->header['host'])) {
@@ -31,8 +33,9 @@ class Server extends HttpServerServer
 
     /**
      * 格式化主机名
+     *
      * @param string $host 主机名
-     * @return string|false
+
      * @author Verdient。
      */
     public function normalizeHost($host)
@@ -40,13 +43,17 @@ class Server extends HttpServerServer
         if (!$parsedUrl = parse_url($host)) {
             return false;
         }
+
         if (!isset($parsedUrl['host'])) {
             return false;
         }
+
         $result = $parsedUrl['host'];
+
         if (isset($parsedUrl['port']) && ($parsedUrl['port'] > 0 && $parsedUrl['port'] < 65535)) {
             $result .= ':' . $parsedUrl['port'];
         }
+
         return $result;
     }
 }

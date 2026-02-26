@@ -4,78 +4,90 @@ declare(strict_types=1);
 
 namespace Verdient\Hyperf3\HttpServer;
 
-use Hyperf\Codec\Json;
-use Hyperf\Context\ApplicationContext;
 use Hyperf\Contract\Arrayable;
-use Hyperf\Contract\Jsonable;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Override;
 use Stringable;
+use UnitEnum;
+use Verdient\Hyperf3\Enum\LabelManager;
 
 /**
  * 数据包
+ *
  * @author Verdient。
  */
-class DataBag implements Jsonable
+class DataBag implements Arrayable
 {
     /**
      * @param mixed $data 数据
-     * @param string $message 提示信息
+     * @param string|int|float|Stringable|UnitEnum $message 提示信息
      * @param int $code 状态码
+     * @param bool $isFailed 是否是错误
+     *
      * @author Verdient。
      */
-    public function __construct(public $data = null, public $message = '', public $code = 200)
-    {
-    }
+    protected function __construct(
+        public readonly mixed $data,
+        public readonly string|int|float|Stringable|UnitEnum $message,
+        public readonly int $code,
+        public readonly bool $isFailed = false
+    ) {}
 
     /**
      * 创建成功数据包
+     *
      * @param mixed $data 数据
-     * @param string $message 提示信息
+     * @param string|int|float|Stringable $message 提示信息
      * @param int $code 状态码
-     * @return static
+     *
      * @author Verdient。
      */
-    public static function succeed($data = null, $message = 'Success', $code = 200)
-    {
-        return new static($data, $message, $code);
+    public static function succeed(
+        mixed $data = null,
+        string|int|float|Stringable $message = 'OK',
+        int $code = 200
+    ): static {
+        return new static(data: $data, message: $message, code: $code);
     }
 
     /**
      * 创建失败数据包
-     * @param string $message 提示信息
+     *
+     * @param string|int|float|Stringable $message 提示信息
      * @param int $code 状态码
      * @param mixed $data 数据
-     * @return static
+     *
      * @author Verdient。
      */
-    public static function failed($message = 'Success', $code = 400, $data = null)
-    {
-        /** @var ResponseInterface */
-        $response = ApplicationContext::getContainer()->get(ResponseInterface::class);
-        return $response->json([
-            'code' => $code,
-            'data' => $data,
-            'message' => $message,
-        ])->withStatus($code);
+    public static function failed(
+        string|int|float|Stringable|UnitEnum $message,
+        int $code = 400,
+        mixed $data = null
+    ): static {
+        return new static(data: $data, message: $message, code: $code, isFailed: true);
     }
 
     /**
-     * 创建成功数据包
+     * 创建消息数据包
+     *
      * @param string $message 提示信息
      * @param mixed $data 数据
      * @param int $code 状态码
-     * @return static
+     *
      * @author Verdient。
      */
-    public static function message($message, $data = null, $code = 200)
-    {
-        return new static($data, $message, $code);
+    public static function message(
+        string|int|float|Stringable|UnitEnum $message,
+        mixed $data = null,
+        int $code = 200,
+    ): static {
+        return new static(data: $data, message: $message, code: $code);
     }
 
     /**
      * 格式化数据
+     *
      * @param mixed $data 待格式化的数据
-     * @return mixed
+     *
      * @author Verdient。
      */
     protected static function normalize($data)
@@ -96,21 +108,21 @@ class DataBag implements Jsonable
     }
 
     /**
-     * @inheritdoc
      * @author Verdient。
      */
-    public function __toString(): string
+    #[Override]
+    public function toArray(): array
     {
         $data = $this->data;
+
         if (is_object($data)) {
             if ($data instanceof Arrayable) {
                 $data = $this->data->toArray();
-            } else if ($data instanceof Jsonable) {
-                $data = (string) $this->data;
             } else if ($data instanceof Stringable) {
                 $data = (string) $this->data;
             }
         }
+
         if (is_array($data)) {
             foreach ($data as $key => $value) {
                 $data[$key] = static::normalize($value);
@@ -120,10 +132,21 @@ class DataBag implements Jsonable
                 $data = (string) $data;
             }
         }
-        return Json::encode([
+
+        if ($this->message instanceof UnitEnum) {
+            if ($label = LabelManager::label($this->message)) {
+                $message = $label;
+            } else {
+                $message = $this->message->name;
+            }
+        } else {
+            $message = (string) $this->message;
+        }
+
+        return [
             'code' => $this->code,
             'data' => $data,
-            'message' => $this->message,
-        ]);
+            'message' => $message,
+        ];
     }
 }

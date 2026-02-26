@@ -7,21 +7,24 @@ namespace Verdient\Hyperf3\HttpServer;
 use Hyperf\Context\ApplicationContext;
 use Hyperf\HttpMessage\Uri\Uri;
 use Hyperf\HttpServer\Contract\RequestInterface;
+
 use function Hyperf\Config\config;
 
 /**
  * 路由
+ *
  * @author Verdient。
  */
 class Router
 {
     /**
      * 获取基础URL
+     *
      * @param string $server 服务器名称
-     * @return string|null
+     *
      * @author Verdient。
      */
-    public static function baseUrl($endpoint = 'api'): string|null
+    public static function baseUrl($endpoint = 'api'): ?string
     {
         $configName = strtolower($endpoint) . '_endpoint';
         if ($baseUrl = config($configName)) {
@@ -43,9 +46,10 @@ class Router
 
     /**
      * 生成访问地址
+     *
      * @param string $path 访问路径
      * @param string $server 服务器名称
-     * @return string
+     *
      * @author Verdient。
      */
     public static function to(string $path, $endpoint = 'api'): string

@@ -5,39 +5,42 @@ declare(strict_types=1);
 namespace Verdient\Hyperf3\HttpServer;
 
 use Hyperf\Codec\Json;
-use Hyperf\Context\ApplicationContext;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Logger\LoggerFactory;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use Verdient\cli\Console;
+use Verdient\Hyperf3\Event\Event;
 use Verdient\Hyperf3\Exception\ExceptionOccurredEvent;
 
 use function Hyperf\Config\config;
 
 /**
  * App异常处理器
+ *
  * @author Verdient。
  */
 class AppExceptionHandler extends ExceptionHandler
 {
     /**
-     * @var LoggerInterface
+     * 日志组件
+     *
      * @author Verdient。
      */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /**
-     * @var bool 是否是DEBUG模式
+     * 是否是DEBUG模式
+     *
      * @author Verdient。
      */
-    protected $isDebug = false;
+    protected bool $isDebug = false;
 
     /**
-     * @inheritdoc
+     * 构造函数
+     *
      * @author Verdient。
      */
     public function __construct(LoggerFactory $logger)
@@ -47,9 +50,9 @@ class AppExceptionHandler extends ExceptionHandler
     }
 
     /**
-     * @inheritdoc
      * @author Verdient。
      */
+    #[Override]
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
         $error = $this->normalizeThrowable($throwable);
@@ -57,19 +60,12 @@ class AppExceptionHandler extends ExceptionHandler
             '[' . $error['type'] . '] ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line'] . PHP_EOL . $error['traceAsString']
         );
         try {
-            if (ApplicationContext::hasContainer()) {
-                /** @var EventDispatcherInterface */
-                $eventDispatcher = ApplicationContext::getContainer()->get(EventDispatcherInterface::class);
-                $eventDispatcher->dispatch(new ExceptionOccurredEvent($error));
-            }
+            Event::dispatch(new ExceptionOccurredEvent($throwable));
         } catch (\Throwable $e) {
             $error = $this->normalizeThrowable($e, $throwable);
             $this->logger->error(
                 '[' . $error['type'] . '] ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line'] . PHP_EOL . $error['traceAsString']
             );
-        }
-        if ($this->isDebug) {
-            Console::output('[' . $error['type'] . '] ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line'] . PHP_EOL . Console::colour($error['traceAsString'], Console::FG_RED));
         }
         return $response
             ->withStatus(500)
@@ -79,8 +75,9 @@ class AppExceptionHandler extends ExceptionHandler
 
     /**
      * 构建响应数据
+     *
      * @param array $error 错误数据
-     * @return array
+     *
      * @author Verdient。
      */
     protected function buildResponseData($error): array
@@ -108,12 +105,13 @@ class AppExceptionHandler extends ExceptionHandler
 
     /**
      * 格式化异常信息
+     *
      * @param Throwable $throwable
      * @param Throwable $previous 先前的错误
-     * @return array
+     *
      * @author Verdient。
      */
-    protected function normalizeThrowable(Throwable $throwable, Throwable $previous = null)
+    protected function normalizeThrowable(Throwable $throwable, Throwable $previous = null): array
     {
         $file = $throwable->getFile();
         $line = $throwable->getLine();
@@ -135,18 +133,19 @@ class AppExceptionHandler extends ExceptionHandler
 
     /**
      * 格式化异常信息
+     *
      * @param Throwable $throwable
-     * @return array
+     *
      * @author Verdient。
      */
-    protected function normalize(Throwable $throwable)
+    protected function normalize(Throwable $throwable): array
     {
         $throwable = $this->normalizeThrowable($throwable);
         $this->logger->error(
             '[' . $throwable['type'] . '] ' . $throwable['message'] . ' in ' . $throwable['file'] . ':' . $throwable['line'] . PHP_EOL . $throwable['trace']
         );
         if (config('debug', false)) {
-            $result = [
+            return [
                 'code' => $throwable['code'],
                 'data' => null,
                 'message' => $throwable['message'],
@@ -156,7 +155,6 @@ class AppExceptionHandler extends ExceptionHandler
                 'trace' => explode("\n", $throwable['trace']),
                 'previous' => $throwable['previous']
             ];
-            return $result;
         } else {
             return [
                 'code' => $throwable['code'],
@@ -167,9 +165,9 @@ class AppExceptionHandler extends ExceptionHandler
     }
 
     /**
-     * @inheritdoc
      * @author Verdient。
      */
+    #[Override]
     public function isValid(Throwable $throwable): bool
     {
         return true;

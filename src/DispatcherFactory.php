@@ -13,18 +13,20 @@ use Hyperf\HttpServer\Annotation\PutMapping;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Router\DispatcherFactory as RouterDispatcherFactory;
 use Hyperf\Stringable\Str;
+use Override;
 use ReflectionMethod;
 
 /**
  * @inheritdoc
+ *
  * @author Verdient。
  */
 class DispatcherFactory extends RouterDispatcherFactory
 {
     /**
-     * @inheritdoc
      * @author Verdient。
      */
+    #[Override]
     protected function getPrefix(string $className, string $prefix): string
     {
         if (!$prefix) {
@@ -39,9 +41,9 @@ class DispatcherFactory extends RouterDispatcherFactory
     }
 
     /**
-     * @inheritdoc
      * @author Verdient。
      */
+    #[Override]
     protected function handleController(string $className, Controller $annotation, array $methodMetadata, array $middlewares = []): void
     {
         $mappingAnnotations = [
@@ -65,9 +67,9 @@ class DispatcherFactory extends RouterDispatcherFactory
     }
 
     /**
-     * @inheritdoc
      * @author Verdient。
      */
+    #[Override]
     protected function parsePath(string $prefix, ReflectionMethod $method): string
     {
         return $prefix . '/' . Str::snake($method->getName(), '-');
