@@ -107,11 +107,11 @@ class AppExceptionHandler extends ExceptionHandler
      * 格式化异常信息
      *
      * @param Throwable $throwable
-     * @param Throwable $previous 先前的错误
+     * @param ?Throwable $previous 先前的错误
      *
      * @author Verdient。
      */
-    protected function normalizeThrowable(Throwable $throwable, Throwable $previous = null): array
+    protected function normalizeThrowable(Throwable $throwable, ?Throwable $previous = null): array
     {
         $file = $throwable->getFile();
         $line = $throwable->getLine();
