@@ -40,7 +40,7 @@ class Server extends HttpServerServer
      */
     public function normalizeHost($host)
     {
-        if (!$parsedUrl = parse_url($host)) {
+        if (!$parsedUrl = parse_url('//' . $host)) {
             return false;
         }
 
@@ -50,7 +50,7 @@ class Server extends HttpServerServer
 
         $result = $parsedUrl['host'];
 
-        if (isset($parsedUrl['port']) && ($parsedUrl['port'] > 0 && $parsedUrl['port'] < 65535)) {
+        if (isset($parsedUrl['port']) && ($parsedUrl['port'] > 0 && $parsedUrl['port'] <= 65535)) {
             $result .= ':' . $parsedUrl['port'];
         }
 
