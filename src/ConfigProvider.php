@@ -23,24 +23,26 @@ class ConfigProvider
                 RequestTerminatedListener::class
             ],
             'logger' => [
-                RequestTerminatedListener::class => [
-                    'handler' => [
-                        'class' => \Monolog\Handler\RotatingFileHandler::class,
-                        'constructor' => [
-                            'filename' => BASE_PATH . '/runtime/logs/access/.log',
-                            'level' => \Monolog\Level::Info,
-                            'filenameFormat' => '{date}'
+                'channels' => [
+                    RequestTerminatedListener::class => [
+                        'handler' => [
+                            'class' => \Monolog\Handler\RotatingFileHandler::class,
+                            'constructor' => [
+                                'filename' => BASE_PATH . '/runtime/logs/access/.log',
+                                'level' => \Monolog\Level::Info,
+                                'filenameFormat' => '{date}'
+                            ],
                         ],
-                    ],
-                    'formatter' => [
-                        'class' => \Monolog\Formatter\LineFormatter::class,
-                        'constructor' => [
-                            'format' => "[%datetime%] [%level_name%] %message%\n",
-                            'dateFormat' => 'Y-m-d H:i:s',
-                            'allowInlineLineBreaks' => true,
+                        'formatter' => [
+                            'class' => \Monolog\Formatter\LineFormatter::class,
+                            'constructor' => [
+                                'format' => "[%datetime%] [%level_name%] %message%\n",
+                                'dateFormat' => 'Y-m-d H:i:s',
+                                'allowInlineLineBreaks' => true,
+                            ],
                         ],
-                    ],
-                ]
+                    ]
+                ],
             ]
         ];
     }
