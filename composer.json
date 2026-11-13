@@ -10,7 +10,6 @@
         "hyperf/exception-handler": "^3.2",
         "hyperf/http-message": "^3.2",
         "hyperf/http-server": "^3.2",
-        "hyperf/laminas-mime": "^3.0",
         "hyperf/logger": "^3.2",
         "hyperf/stringable": "^3.2",
         "psr/http-message": "^2.0",
@@ -18,10 +17,10 @@
         "psr/http-server-middleware": "^1.0",
         "psr/log": "^3.0",
         "verdient/cli": "^1.0",
-        "verdient/hyperf3-di": "^2.1",
-        "verdient/hyperf3-enum": "^2.1",
-        "verdient/hyperf3-event": "^2.1",
-        "verdient/hyperf3-exception": "^2.1"
+        "verdient/hyperf3-di": "^3.2",
+        "verdient/hyperf3-enum": "^3.2",
+        "verdient/hyperf3-event": "^3.2",
+        "verdient/hyperf3-exception": "^3.2"
     },
     "autoload": {
         "psr-4": {
